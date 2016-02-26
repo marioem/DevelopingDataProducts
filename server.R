@@ -355,7 +355,6 @@ shinyServer(function(input, output, session){ # pass in a session argument
     ))
     
     output$lmodel <- DT::renderDataTable({
-        print("bubu")
         DT::datatable(
             pLModel()[,1:6],
             options = list(autoWidth = FALSE,
