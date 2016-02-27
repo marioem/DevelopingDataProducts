@@ -11,10 +11,8 @@ library(corrplot)
 
 load("procdata.RData") # load the dataframe
 
-# starting <- 0 # Flag used to prevent updating ggProcess before it is creates
-
 shinyServer(function(input, output, session){ # pass in a session argument
-    # for extra functionality
+                                              # for extra functionality
     
     # keep control of the checkbox control
     
@@ -33,11 +31,6 @@ shinyServer(function(input, output, session){ # pass in a session argument
         
     })
     
-    # observe({
-    #     if(length(input$ggProcess) == 0 & starting > 0)
-    #         updateSelectizeInput(session, 'ggProcess', selected = unique(procdata$Process)[1])
-    # })
-    
     output$yearRange <- renderUI({
         minmax <- range(as.integer(year(procdata$Date)))
         sliderInput("range", "Years range to consider",
@@ -52,7 +45,6 @@ shinyServer(function(input, output, session){ # pass in a session argument
     # })
     # 
     output$procList <- renderUI({
-        # starting <<- 1
         procList <- unique(procdata$Process)
         selectizeInput(
             'ggProcess', 'Processes to plot', choices = procList,
@@ -84,7 +76,7 @@ shinyServer(function(input, output, session){ # pass in a session argument
         }
         
         for(iter in 1:3) {
-            for(outl in c("A", "B", "C", "D", "E", "F")) {
+            for(outl in c("A", "B", "C", "D", "E", "F")) { # generate this list from data in the next revision
                 bp1 <- boxplot(df$Performance[df$Process == outl & df$OutlRank == 0], plot = F)
                 outliers <- which(df$Process == outl & df$Performance %in% bp1$out)
                 df$Outlier[outliers] <- df$Iteration[outliers]
@@ -169,7 +161,11 @@ shinyServer(function(input, output, session){ # pass in a session argument
         if("VPlot" %in% input$chartType)
             ga <- ga + geom_violin()
         if("BPlot" %in% input$chartType)
-            ga <- ga + geom_boxplot(fill = "grey", color = "red", outlier.colour = "red", outlier.size = 3, width = .2)
+            if(!("VPlot" %in% input$chartType)) {
+                ga <- ga + geom_boxplot(aes(fill = Process), color = "red", outlier.colour = "red", outlier.size = 3, width = .5)
+            } else {
+                ga <- ga + geom_boxplot(fill = "grey", color = "red", outlier.colour = "red", outlier.size = 3, width = .2)
+            }
         if("JPlot" %in% input$chartType)
             ga <- ga + geom_jitter(width = .2, alpha = .3, size = 3)
         if(input$labelOutl & ("BPlot" %in% input$chartType))
@@ -249,15 +245,20 @@ shinyServer(function(input, output, session){ # pass in a session argument
     
     # ### following sections define the code that makes graphs downloadable
     # To do: the code for plotting to file and to web page is the same, check
-    #        if this can be moved outside reactive and renderPlot handles to
+    #        if this can be moved outside reactive and renderPlot handlers to
     #        a function. The same with the download handler.
 
     pltDistr <- reactive({
         ga <- ggplot(pData(), aes(x = Process, y = Performance, fill = Process))
         if("VPlot" %in% input$chartType)
             ga <- ga + geom_violin()
-        if("BPlot" %in% input$chartType)
-            ga <- ga + geom_boxplot(fill = "grey", color = "red", outlier.colour = "red", outlier.size = 3, width = .2)
+        if("BPlot" %in% input$chartType) {
+            if(!("VPlot" %in% input$chartType)) {
+                ga <- ga + geom_boxplot(aes(fill = Process), color = "red", outlier.colour = "red", outlier.size = 3, width = .2)
+            } else {
+                ga <- ga + geom_boxplot(fill = "grey", color = "red", outlier.colour = "red", outlier.size = 3, width = .2)
+            }
+        }
         if("JPlot" %in% input$chartType)
             ga <- ga + geom_jitter(width = .2, alpha = .3, size = 3)
         if(input$labelOutl & ("BPlot" %in% input$chartType))
