@@ -1,0 +1,15 @@
+<section class='{{slide.class}}' data-state='{{slide.ds}}' id='{{slide.id}}'>
+  {{{ slide.header }}}
+  {{{ slide.content }}}
+  <div class='left' style='float:left;width:48%'>
+     {{{ slide.left.html }}}
+  </div>    
+  <div class='right' style='float:right;width:48%'>
+     {{{ slide.right.html }}}
+  </div>
+  {{# slide.pnotes }}
+  <aside class='notes'>
+    {{{ html }}}
+  </aside>
+  {{/ slide.pnotes }}
+</section>
